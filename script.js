@@ -385,6 +385,9 @@ function generateGroups() {
     const shuffleBtn = document.getElementById('shuffle-btn');
     const preMessage = document.getElementById('pre-generation-message');
     
+    // Reset shuffle click counter when generating fresh groups
+    shuffleClickCount = 0;
+    
     generateBtn.disabled = true;
     generateBtn.textContent = '🔄 Membuat Kelompok...';
     
