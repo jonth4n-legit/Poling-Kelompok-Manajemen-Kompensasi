@@ -127,15 +127,15 @@ Poling-Kelompok-Manajemen-Kompensasi/
 ### Pembagian Kelompok:
 1. **Pemisahan Gender**: Memisahkan mahasiswa berdasarkan gender
 2. **Shuffle Random**: Mengacak urutan untuk fairness
-3. **Distribusi Bertahap**: 
-   - Distribusikan laki-laki secara merata (20 ÷ 7 ≈ 3 per kelompok)
-   - Distribusikan perempuan secara merata (25 ÷ 7 ≈ 3-4 per kelompok)
-4. **Pengisian Sisa Slot**: Mengisi slot yang tersisa secara acak
+3. **Distribusi Spesifik**: 
+   - Distribusikan laki-laki dengan pola tetap: 3-3-3-3-3-3-2
+   - Distribusikan perempuan dengan pola: 4-4-4-3-3-3-4
+4. **Penyesuaian Ukuran**: Memastikan ukuran kelompok sesuai dengan yang diinginkan
 
-### Formula Distribusi:
-- **Target per kelompok**: `Math.floor(total_gender / 7) + (remainder > group_index ? 1 : 0)`
-- **Distribusi Laki-laki**: 3-3-3-3-3-3-2 atau variasi serupa
-- **Distribusi Perempuan**: 4-4-4-3-3-3-4 atau variasi serupa
+### Distribusi Tetap:
+- **Distribusi Laki-laki**: 3-3-3-3-3-3-2 (20 total)
+- **Distribusi Perempuan**: 4-4-4-3-3-3-4 (25 total)
+- **Ukuran Kelompok**: 7-7-7-6-6-6-6 (45 total mahasiswa)
 
 ## 🎨 Fitur Visual
 

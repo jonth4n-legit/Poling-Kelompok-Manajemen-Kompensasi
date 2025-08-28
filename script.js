@@ -167,13 +167,13 @@ function onWindowResize() {
     renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
-// Group assignment algorithm with fair gender distribution
+// Group assignment algorithm with specific gender distribution
 function assignGroups() {
     // Separate students by gender
     const males = students.filter(student => student.gender === "Laki-Laki");
     const females = students.filter(student => student.gender === "Perempuan");
     
-    // Shuffle arrays
+    // Shuffle arrays for fairness
     shuffleArray(males);
     shuffleArray(females);
     
@@ -186,15 +186,17 @@ function assignGroups() {
         femaleCount: 0
     }));
     
-    // Calculate target gender distribution
-    const totalMales = males.length;
-    const totalFemales = females.length;
-    const totalGroups = groups.length;
+    // Specific distribution as requested:
+    // Males: 3-3-3-3-3-3-2 (groups 1-7) = 20 total
+    // Females: 4-4-4-4-3-3-3 (groups 1-7) = 25 total
+    // Note: This creates groups [7,7,7,7,6,6,5] but required sizes are [7,7,7,6,6,6,6]
+    const maleDistribution = [3, 3, 3, 3, 3, 3, 2];
+    const femaleDistribution = [4, 4, 4, 4, 3, 3, 3];
     
-    // Distribute males fairly
+    // Distribute males according to specific pattern
     let maleIndex = 0;
-    for (let i = 0; i < totalGroups; i++) {
-        const targetMales = Math.floor(totalMales / totalGroups) + (i < totalMales % totalGroups ? 1 : 0);
+    for (let i = 0; i < groups.length; i++) {
+        const targetMales = maleDistribution[i];
         
         for (let j = 0; j < targetMales && maleIndex < males.length; j++) {
             groups[i].members.push(males[maleIndex]);
@@ -203,11 +205,10 @@ function assignGroups() {
         }
     }
     
-    // Distribute females fairly
+    // Distribute females according to specific pattern
     let femaleIndex = 0;
-    for (let i = 0; i < totalGroups; i++) {
-        const remainingSlots = groups[i].size - groups[i].members.length;
-        const targetFemales = Math.min(remainingSlots, Math.floor(totalFemales / totalGroups) + (i < totalFemales % totalGroups ? 1 : 0));
+    for (let i = 0; i < groups.length; i++) {
+        const targetFemales = femaleDistribution[i];
         
         for (let j = 0; j < targetFemales && femaleIndex < females.length; j++) {
             groups[i].members.push(females[femaleIndex]);
@@ -216,21 +217,53 @@ function assignGroups() {
         }
     }
     
-    // Fill remaining slots if any
+    // Fill any remaining slots to match required group sizes
     const allRemainingStudents = [...males.slice(maleIndex), ...females.slice(femaleIndex)];
-    shuffleArray(allRemainingStudents);
-    
-    let remainingIndex = 0;
-    for (let group of groups) {
-        while (group.members.length < group.size && remainingIndex < allRemainingStudents.length) {
-            const student = allRemainingStudents[remainingIndex];
-            group.members.push(student);
-            if (student.gender === "Laki-Laki") {
-                group.maleCount++;
-            } else {
-                group.femaleCount++;
+    if (allRemainingStudents.length > 0) {
+        shuffleArray(allRemainingStudents);
+        
+        let remainingIndex = 0;
+        for (let group of groups) {
+            while (group.members.length < group.size && remainingIndex < allRemainingStudents.length) {
+                const student = allRemainingStudents[remainingIndex];
+                group.members.push(student);
+                if (student.gender === "Laki-Laki") {
+                    group.maleCount++;
+                } else {
+                    group.femaleCount++;
+                }
+                remainingIndex++;
             }
-            remainingIndex++;
+        }
+    }
+    
+    // If any groups still don't have enough members, redistribute from larger groups
+    for (let i = 0; i < groups.length; i++) {
+        while (groups[i].members.length < groups[i].size) {
+            // Find a group that has more members than needed
+            let sourceGroupIndex = -1;
+            for (let j = 0; j < groups.length; j++) {
+                if (groups[j].members.length > groups[j].size) {
+                    sourceGroupIndex = j;
+                    break;
+                }
+            }
+            
+            if (sourceGroupIndex >= 0) {
+                // Move a student from source group to current group
+                const student = groups[sourceGroupIndex].members.pop();
+                groups[i].members.push(student);
+                
+                if (student.gender === "Laki-Laki") {
+                    groups[sourceGroupIndex].maleCount--;
+                    groups[i].maleCount++;
+                } else {
+                    groups[sourceGroupIndex].femaleCount--;
+                    groups[i].femaleCount++;
+                }
+            } else {
+                break; // No more students to redistribute
+            }
         }
     }
     
