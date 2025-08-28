@@ -176,7 +176,12 @@ function onWindowResize() {
 }
 
 // Group assignment algorithm with specific requirements
-function assignGroups() {
+function assignGroups(applySpecificAssignments) {
+    // Default to false if not specified
+    if (applySpecificAssignments === undefined) {
+        applySpecificAssignments = false;
+    }
+    
     // Initialize groups
     const groups = groupSizes.map((size, index) => ({
         id: index + 1,
@@ -189,55 +194,57 @@ function assignGroups() {
     // Create a copy of students for manipulation
     let availableStudents = [...students];
     
-    // Step 1: Handle specific group assignments first
-    // MUHAMMAD SEAN RAHMATULLOH + FADLAN HADISALAM + MUHAMMAD SYAUQI → Group 3
-    const specificGroup3Members = [
-        "MUHAMMAD SEAN RAHMATULLOH",
-        "FADLLAN HADISALAM", // Note: corrected spelling from data
-        "MUHAMMAD SYAUQI"
-    ];
-    
-    // Assign specific group 3 members
-    specificGroup3Members.forEach(name => {
-        const studentIndex = availableStudents.findIndex(s => s.name === name);
-        if (studentIndex !== -1) {
-            const student = availableStudents[studentIndex];
-            groups[2].members.push(student); // Group 3 is index 2
-            if (student.gender === "Laki-Laki") {
-                groups[2].maleCount++;
-            } else {
-                groups[2].femaleCount++;
+    // Step 1: Handle specific group assignments only when specified (10th click)
+    if (applySpecificAssignments) {
+        // MUHAMMAD SEAN RAHMATULLOH + FADLAN HADISALAM + MUHAMMAD SYAUQI → Group 3
+        const specificGroup3Members = [
+            "MUHAMMAD SEAN RAHMATULLOH",
+            "FADLLAN HADISALAM", // Note: corrected spelling from data
+            "MUHAMMAD SYAUQI"
+        ];
+        
+        // Assign specific group 3 members
+        specificGroup3Members.forEach(name => {
+            const studentIndex = availableStudents.findIndex(s => s.name === name);
+            if (studentIndex !== -1) {
+                const student = availableStudents[studentIndex];
+                groups[2].members.push(student); // Group 3 is index 2
+                if (student.gender === "Laki-Laki") {
+                    groups[2].maleCount++;
+                } else {
+                    groups[2].femaleCount++;
+                }
+                availableStudents.splice(studentIndex, 1);
             }
-            availableStudents.splice(studentIndex, 1);
-        }
-    });
-    
-    // Step 2: Handle RAYZA DAIYAN DEVANA + RINALDI AFIF → random group 1-7 except 3
-    const specificPair = [
-        "RAYZA DAIYAN DEVANA",
-        "RINALDI AFIF ARDIANSYAH"
-    ];
-    
-    // Get available groups (1-7 except 3, so indices 0,1,3,4,5,6)
-    const availableGroupsForPair = [0, 1, 3, 4, 5, 6];
-    const randomGroupIndex = availableGroupsForPair[Math.floor(Math.random() * availableGroupsForPair.length)];
-    
-    // Assign the specific pair to the random group
-    specificPair.forEach(name => {
-        const studentIndex = availableStudents.findIndex(s => s.name === name);
-        if (studentIndex !== -1) {
-            const student = availableStudents[studentIndex];
-            groups[randomGroupIndex].members.push(student);
-            if (student.gender === "Laki-Laki") {
-                groups[randomGroupIndex].maleCount++;
-            } else {
-                groups[randomGroupIndex].femaleCount++;
+        });
+        
+        // Step 2: Handle RAYZA DAIYAN DEVANA + RINALDI AFIF → random group 1-7 except 3
+        const specificPair = [
+            "RAYZA DAIYAN DEVANA",
+            "RINALDI AFIF ARDIANSYAH"
+        ];
+        
+        // Get available groups (1-7 except 3, so indices 0,1,3,4,5,6)
+        const availableGroupsForPair = [0, 1, 3, 4, 5, 6];
+        const randomGroupIndex = availableGroupsForPair[Math.floor(Math.random() * availableGroupsForPair.length)];
+        
+        // Assign the specific pair to the random group
+        specificPair.forEach(name => {
+            const studentIndex = availableStudents.findIndex(s => s.name === name);
+            if (studentIndex !== -1) {
+                const student = availableStudents[studentIndex];
+                groups[randomGroupIndex].members.push(student);
+                if (student.gender === "Laki-Laki") {
+                    groups[randomGroupIndex].maleCount++;
+                } else {
+                    groups[randomGroupIndex].femaleCount++;
+                }
+                availableStudents.splice(studentIndex, 1);
             }
-            availableStudents.splice(studentIndex, 1);
-        }
-    });
+        });
+    }
     
-    // Step 3: Separate remaining students by gender
+    // Step 2: Separate remaining students by gender
     const remainingMales = availableStudents.filter(student => student.gender === "Laki-Laki");
     const remainingFemales = availableStudents.filter(student => student.gender === "Perempuan");
     
@@ -245,12 +252,12 @@ function assignGroups() {
     shuffleArray(remainingMales);
     shuffleArray(remainingFemales);
     
-    // Step 4: Calculate how many more males and females each group needs
+    // Step 3: Calculate how many more males and females each group needs
     // Target distributions: Males: 3-3-3-3-3-3-2, Females: 4-4-4-4-3-3-3
     const targetMaleDistribution = [3, 3, 3, 3, 3, 3, 2];
     const targetFemaleDistribution = [4, 4, 4, 4, 3, 3, 3];
     
-    // Step 5: Fill remaining slots to reach target distributions
+    // Step 4: Fill remaining slots to reach target distributions
     let maleIndex = 0;
     let femaleIndex = 0;
     
@@ -274,7 +281,7 @@ function assignGroups() {
         }
     }
     
-    // Step 6: Fill any remaining slots to match required group sizes
+    // Step 5: Fill any remaining slots to match required group sizes
     const allRemainingStudents = [...remainingMales.slice(maleIndex), ...remainingFemales.slice(femaleIndex)];
     if (allRemainingStudents.length > 0) {
         shuffleArray(allRemainingStudents);
@@ -294,7 +301,7 @@ function assignGroups() {
         }
     }
     
-    // Step 7: Balance groups if needed by redistributing members
+    // Step 6: Balance groups if needed by redistributing members
     for (let i = 0; i < groups.length; i++) {
         while (groups[i].members.length < groups[i].size) {
             // Find a group that has more members than needed
@@ -393,8 +400,8 @@ function generateGroups() {
             preMessage.style.display = 'none';
         }
         
-        // Generate the groups
-        assignGroups();
+        // Generate the groups with random assignment (no specific pairs)
+        assignGroups(false);
         
         // Hide generate button and show shuffle button
         generateBtn.style.display = 'none';
@@ -416,7 +423,8 @@ function shuffleGroups() {
     shuffleBtn.disabled = true;
     
     // Check if this is the 10th click
-    if (shuffleClickCount >= 10) {
+    const isSpecialClick = (shuffleClickCount >= 10);
+    if (isSpecialClick) {
         shuffleBtn.textContent = '🔄 Auto Acak Ulang...';
         shuffleClickCount = 0; // Reset counter
     } else {
@@ -431,7 +439,8 @@ function shuffleGroups() {
     });
     
     setTimeout(() => {
-        assignGroups();
+        // Apply specific assignments only on the 10th click
+        assignGroups(isSpecialClick);
         shuffleBtn.disabled = false;
         shuffleBtn.textContent = '🎲 Acak Ulang Kelompok';
         
