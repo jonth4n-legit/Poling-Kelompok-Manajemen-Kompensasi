@@ -65,9 +65,10 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('three-canvas').style.display = 'none';
     }
     
-    assignGroups();
+    // Don't auto-generate groups - wait for user to click generate button
     
     // Event listeners
+    document.getElementById('generate-btn').addEventListener('click', generateGroups);
     document.getElementById('shuffle-btn').addEventListener('click', shuffleGroups);
     document.getElementById('toggle-3d').addEventListener('click', toggle3DMode);
     
@@ -278,6 +279,41 @@ function displayGroups(groups) {
         
         container.appendChild(groupCard);
     });
+}
+
+// Generate groups for the first time
+function generateGroups() {
+    // Add loading effect to generate button
+    const generateBtn = document.getElementById('generate-btn');
+    const shuffleBtn = document.getElementById('shuffle-btn');
+    const preMessage = document.getElementById('pre-generation-message');
+    
+    generateBtn.disabled = true;
+    generateBtn.textContent = '🔄 Membuat Kelompok...';
+    
+    // Hide pre-generation message with fade effect
+    if (preMessage) {
+        preMessage.style.opacity = '0';
+        preMessage.style.transform = 'scale(0.95)';
+    }
+    
+    setTimeout(() => {
+        // Remove pre-generation message completely
+        if (preMessage) {
+            preMessage.style.display = 'none';
+        }
+        
+        // Generate the groups
+        assignGroups();
+        
+        // Hide generate button and show shuffle button
+        generateBtn.style.display = 'none';
+        shuffleBtn.style.display = 'inline-block';
+        
+        // Reset generate button for potential future use
+        generateBtn.disabled = false;
+        generateBtn.textContent = '🎯 Generate Kelompok';
+    }, 1000);
 }
 
 // Shuffle groups

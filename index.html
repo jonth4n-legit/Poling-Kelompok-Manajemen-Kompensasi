@@ -22,14 +22,23 @@
         </header>
 
         <div id="controls">
-            <button id="shuffle-btn">🎲 Acak Ulang Kelompok</button>
+            <button id="generate-btn">🎯 Generate Kelompok</button>
+            <button id="shuffle-btn" style="display: none;">🎲 Acak Ulang Kelompok</button>
             <button id="toggle-3d">🎨 Toggle 3D Mode</button>
         </div>
 
         <div id="three-canvas"></div>
 
         <div id="groups-container">
-            <!-- Groups will be generated here -->
+            <div id="pre-generation-message" class="welcome-message">
+                <h3>🎯 Siap untuk Membagi Kelompok?</h3>
+                <p>Klik tombol "Generate Kelompok" untuk membuat pembagian 7 kelompok secara otomatis dengan distribusi gender yang adil.</p>
+                <div class="stats-preview">
+                    <span>📊 Total: 45 Mahasiswa</span>
+                    <span>👩 25 Perempuan</span>  
+                    <span>👨 20 Laki-laki</span>
+                </div>
+            </div>
         </div>
 
         <footer>
