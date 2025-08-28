@@ -117,6 +117,7 @@ header p {
     gap: 25px;
     margin: 30px 0;
     animation: fadeInUp 1s ease-out 0.9s both;
+    perspective: 1000px;
 }
 
 .group-card {
@@ -128,10 +129,11 @@ header p {
     border: 1px solid rgba(255, 255, 255, 0.3);
     transition: all 0.3s ease;
     animation: groupCardIn 0.8s ease-out;
+    transform-style: preserve-3d;
 }
 
 .group-card:hover {
-    transform: translateY(-10px);
+    transform: rotateX(10deg) rotateY(10deg) translateZ(20px);
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
 }
 

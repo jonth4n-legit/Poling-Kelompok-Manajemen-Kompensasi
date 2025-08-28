@@ -1,5 +1,26 @@
 # Dependencies
+# Dependencies
 node_modules/
+package-lock.json
+
+# Development files
+secure-app.js
+obfuscate.js
+
+# Build artifacts
+*.log
+*.tmp
+
+# IDE files
+.vscode/
+.idea/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Backup files
+*.backup
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
