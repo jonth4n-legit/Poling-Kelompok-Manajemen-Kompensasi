@@ -55,6 +55,9 @@ let scene, camera, renderer;
 let particles = [];
 let is3DMode = false;
 
+// Shuffle click counter for 10th click auto-reshuffle
+let shuffleClickCount = 0;
+
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
     // Try to initialize Three.js, fallback gracefully if not available
@@ -70,7 +73,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // Event listeners
     document.getElementById('generate-btn').addEventListener('click', generateGroups);
     document.getElementById('shuffle-btn').addEventListener('click', shuffleGroups);
-    document.getElementById('toggle-3d').addEventListener('click', toggle3DMode);
+    
+    // Only add toggle-3d listener if the button exists
+    const toggle3dBtn = document.getElementById('toggle-3d');
+    if (toggle3dBtn) {
+        toggle3dBtn.addEventListener('click', toggle3DMode);
+    }
     
     // Hide loading screen and show main content
     setTimeout(() => {
@@ -167,16 +175,8 @@ function onWindowResize() {
     renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
-// Group assignment algorithm with specific gender distribution
+// Group assignment algorithm with specific requirements
 function assignGroups() {
-    // Separate students by gender
-    const males = students.filter(student => student.gender === "Laki-Laki");
-    const females = students.filter(student => student.gender === "Perempuan");
-    
-    // Shuffle arrays for fairness
-    shuffleArray(males);
-    shuffleArray(females);
-    
     // Initialize groups
     const groups = groupSizes.map((size, index) => ({
         id: index + 1,
@@ -186,39 +186,96 @@ function assignGroups() {
         femaleCount: 0
     }));
     
-    // Specific distribution as requested:
-    // Males: 3-3-3-3-3-3-2 (groups 1-7) = 20 total
-    // Females: 4-4-4-4-3-3-3 (groups 1-7) = 25 total
-    // Note: This creates groups [7,7,7,7,6,6,5] but required sizes are [7,7,7,6,6,6,6]
-    const maleDistribution = [3, 3, 3, 3, 3, 3, 2];
-    const femaleDistribution = [4, 4, 4, 4, 3, 3, 3];
+    // Create a copy of students for manipulation
+    let availableStudents = [...students];
     
-    // Distribute males according to specific pattern
+    // Step 1: Handle specific group assignments first
+    // MUHAMMAD SEAN RAHMATULLOH + FADLAN HADISALAM + MUHAMMAD SYAUQI → Group 3
+    const specificGroup3Members = [
+        "MUHAMMAD SEAN RAHMATULLOH",
+        "FADLLAN HADISALAM", // Note: corrected spelling from data
+        "MUHAMMAD SYAUQI"
+    ];
+    
+    // Assign specific group 3 members
+    specificGroup3Members.forEach(name => {
+        const studentIndex = availableStudents.findIndex(s => s.name === name);
+        if (studentIndex !== -1) {
+            const student = availableStudents[studentIndex];
+            groups[2].members.push(student); // Group 3 is index 2
+            if (student.gender === "Laki-Laki") {
+                groups[2].maleCount++;
+            } else {
+                groups[2].femaleCount++;
+            }
+            availableStudents.splice(studentIndex, 1);
+        }
+    });
+    
+    // Step 2: Handle RAYZA DAIYAN DEVANA + RINALDI AFIF → random group 1-7 except 3
+    const specificPair = [
+        "RAYZA DAIYAN DEVANA",
+        "RINALDI AFIF ARDIANSYAH"
+    ];
+    
+    // Get available groups (1-7 except 3, so indices 0,1,3,4,5,6)
+    const availableGroupsForPair = [0, 1, 3, 4, 5, 6];
+    const randomGroupIndex = availableGroupsForPair[Math.floor(Math.random() * availableGroupsForPair.length)];
+    
+    // Assign the specific pair to the random group
+    specificPair.forEach(name => {
+        const studentIndex = availableStudents.findIndex(s => s.name === name);
+        if (studentIndex !== -1) {
+            const student = availableStudents[studentIndex];
+            groups[randomGroupIndex].members.push(student);
+            if (student.gender === "Laki-Laki") {
+                groups[randomGroupIndex].maleCount++;
+            } else {
+                groups[randomGroupIndex].femaleCount++;
+            }
+            availableStudents.splice(studentIndex, 1);
+        }
+    });
+    
+    // Step 3: Separate remaining students by gender
+    const remainingMales = availableStudents.filter(student => student.gender === "Laki-Laki");
+    const remainingFemales = availableStudents.filter(student => student.gender === "Perempuan");
+    
+    // Shuffle remaining students for fairness
+    shuffleArray(remainingMales);
+    shuffleArray(remainingFemales);
+    
+    // Step 4: Calculate how many more males and females each group needs
+    // Target distributions: Males: 3-3-3-3-3-3-2, Females: 4-4-4-4-3-3-3
+    const targetMaleDistribution = [3, 3, 3, 3, 3, 3, 2];
+    const targetFemaleDistribution = [4, 4, 4, 4, 3, 3, 3];
+    
+    // Step 5: Fill remaining slots to reach target distributions
     let maleIndex = 0;
+    let femaleIndex = 0;
+    
+    // Fill males according to target distribution
     for (let i = 0; i < groups.length; i++) {
-        const targetMales = maleDistribution[i];
-        
-        for (let j = 0; j < targetMales && maleIndex < males.length; j++) {
-            groups[i].members.push(males[maleIndex]);
+        const neededMales = targetMaleDistribution[i] - groups[i].maleCount;
+        for (let j = 0; j < neededMales && maleIndex < remainingMales.length; j++) {
+            groups[i].members.push(remainingMales[maleIndex]);
             groups[i].maleCount++;
             maleIndex++;
         }
     }
     
-    // Distribute females according to specific pattern
-    let femaleIndex = 0;
+    // Fill females according to target distribution
     for (let i = 0; i < groups.length; i++) {
-        const targetFemales = femaleDistribution[i];
-        
-        for (let j = 0; j < targetFemales && femaleIndex < females.length; j++) {
-            groups[i].members.push(females[femaleIndex]);
+        const neededFemales = targetFemaleDistribution[i] - groups[i].femaleCount;
+        for (let j = 0; j < neededFemales && femaleIndex < remainingFemales.length; j++) {
+            groups[i].members.push(remainingFemales[femaleIndex]);
             groups[i].femaleCount++;
             femaleIndex++;
         }
     }
     
-    // Fill any remaining slots to match required group sizes
-    const allRemainingStudents = [...males.slice(maleIndex), ...females.slice(femaleIndex)];
+    // Step 6: Fill any remaining slots to match required group sizes
+    const allRemainingStudents = [...remainingMales.slice(maleIndex), ...remainingFemales.slice(femaleIndex)];
     if (allRemainingStudents.length > 0) {
         shuffleArray(allRemainingStudents);
         
@@ -237,7 +294,7 @@ function assignGroups() {
         }
     }
     
-    // If any groups still don't have enough members, redistribute from larger groups
+    // Step 7: Balance groups if needed by redistributing members
     for (let i = 0; i < groups.length; i++) {
         while (groups[i].members.length < groups[i].size) {
             // Find a group that has more members than needed
@@ -349,12 +406,22 @@ function generateGroups() {
     }, 1000);
 }
 
-// Shuffle groups
+// Shuffle groups with click counter for 10th click auto-reshuffle
 function shuffleGroups() {
+    // Increment click counter
+    shuffleClickCount++;
+    
     // Add loading effect
     const shuffleBtn = document.getElementById('shuffle-btn');
     shuffleBtn.disabled = true;
-    shuffleBtn.textContent = '🔄 Mengacak...';
+    
+    // Check if this is the 10th click
+    if (shuffleClickCount >= 10) {
+        shuffleBtn.textContent = '🔄 Auto Acak Ulang...';
+        shuffleClickCount = 0; // Reset counter
+    } else {
+        shuffleBtn.textContent = '🔄 Mengacak...';
+    }
     
     // Add shake effect to cards
     document.querySelectorAll('.group-card').forEach(card => {
