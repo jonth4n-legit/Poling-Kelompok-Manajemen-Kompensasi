@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Poling Kelompok Manajemen Kompensasi</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="loading-screen">
+        <div class="loading-content">
+            <h2>Memuat Pembagian Kelompok...</h2>
+            <div class="loading-spinner"></div>
+        </div>
+    </div>
+
+    <div id="main-container">
+        <header>
+            <h1>Pembagian Kelompok Manajemen Kompensasi</h1>
+            <p>Pembagian otomatis 7 kelompok dengan distribusi gender yang adil</p>
+        </header>
+
+        <div id="controls">
+            <button id="shuffle-btn">🎲 Acak Ulang Kelompok</button>
+            <button id="toggle-3d">🎨 Toggle 3D Mode</button>
+        </div>
+
+        <div id="three-canvas"></div>
+
+        <div id="groups-container">
+            <!-- Groups will be generated here -->
+        </div>
+
+        <footer>
+            <p>Total: 45 Mahasiswa (25 Perempuan, 20 Laki-laki)</p>
+            <p>Distribusi: 7 Kelompok dengan anggota 7-7-7-6-6-6-6</p>
+        </footer>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
